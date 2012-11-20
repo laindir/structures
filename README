@@ -1,0 +1,21 @@
+This is a collection of templated macros to create common data structures
+storing a user-specified type. Each data structure is defined by two macros
+in its own file. So to use, for example, a binary heap holding (void *), your
+source should contain something like this:
+
+	#include "binaryheap.h"
+
+	typedef void * vaddr_t;
+
+	DECLARE_BINARYHEAP(vaddr_t)
+	DEFINE_BINARYHEAP(vaddr_t)
+
+Currently, the templates do not like types with spaces (hence, the need for
+the typedef). Additionally, templates that define a default comparison function
+(e.g., binaryheap's _value_min_heap_condition) will not play well with embedded
+complex types, so you will need to use a pointer to the type and define your
+own comparison function accordingly.
+
+Defining interfaces for the various types is beyond the scope of this README,
+as, at the time of writing, there is currently only one type. Please see the
+relevant header file for prototypes.
