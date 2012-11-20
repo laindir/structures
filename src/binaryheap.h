@@ -237,7 +237,7 @@ void type ## _binaryheap_heapify(struct type ## _binaryheap *heap)\
 				swap = heap->heap_condition(heap->data[l], heap->data[r]) < 0 ? l : r;\
 			}\
 		}\
-	} while(i-- > 0)\
+	} while(i-- > 0);\
 }\
 
 #endif
