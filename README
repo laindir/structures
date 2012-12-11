@@ -19,3 +19,10 @@ own comparison function accordingly.
 Defining interfaces for the various types is beyond the scope of this README,
 as, at the time of writing, there is currently only one type. Please see the
 relevant header file for prototypes.
+
+COPYRIGHT
+	Copyright 2012 Carl D Hamann
+	Copying and distribution of this file, with or without modification,
+	are permitted in any medium without royalty provided the copyright
+	notice and this notice are preserved.  This file is offered as-is,
+	without any warranty.
