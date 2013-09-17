@@ -23,39 +23,61 @@ along with structures.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <stdlib.h>
 
-struct binaryheap binaryheap(void **data, size_t size, size_t count, int (*heap_condition)(void *a, void *b))
+struct _binaryheap
 {
-	struct binaryheap result;
+	size_t size;
+	size_t count;
+	int (*heap_condition)(void *a, void *b);
+	void **data;
+};
 
-	result.size = size;
-	result.count = count;
-	result.data = data;
-	result.heap_condition = heap_condition;
+binaryheap *
+binaryheap_create(void **data, size_t size, size_t count, int (*heap_condition)(void *a, void *b))
+{
+	binaryheap *heap = malloc(sizeof(*heap));
 
-	if(count != 0)
+	if(heap)
 	{
-		binaryheap_heapify(&result);
+		heap->data = data;
+		heap->size = size;
+		heap->count = count;
+		heap->heap_condition = heap_condition;
+
+		if(count != 0)
+		{
+			binaryheap_heapify(heap);
+		}
 	}
 
-	return result;
+	return heap;
 }
 
-size_t binaryheap_left(size_t i)
+void
+binaryheap_destroy(binaryheap *heap)
+{
+	free(heap);
+}
+
+static size_t
+binaryheap_left(size_t i)
 {
 	return (i << 1) + 1;
 }
 
-size_t binaryheap_right(size_t i)
+static size_t
+binaryheap_right(size_t i)
 {
 	return (i << 1) + 2;
 }
 
-size_t binaryheap_parent(size_t i)
+static size_t
+binaryheap_parent(size_t i)
 {
 	return i == 0 ? 0 : (i - 1) >> 1;
 }
 
-int binaryheap_insert(struct binaryheap *heap, void *item)
+int
+binaryheap_insert(binaryheap *heap, void *item)
 {
 	size_t dest;
 	size_t par;
@@ -85,7 +107,8 @@ int binaryheap_insert(struct binaryheap *heap, void *item)
 	}
 }
 
-void *binaryheap_delete(struct binaryheap *heap)
+void *
+binaryheap_delete(binaryheap *heap)
 {
 	void *result;
 	void *temp;
@@ -148,7 +171,8 @@ void *binaryheap_delete(struct binaryheap *heap)
 	}
 }
 
-void binaryheap_heapify(struct binaryheap *heap)
+void
+binaryheap_heapify(binaryheap *heap)
 {
 	void *temp;
 	size_t i;

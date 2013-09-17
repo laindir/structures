@@ -24,19 +24,21 @@ along with structures.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sys/types.h>
 
-struct binaryheap
-{
-	size_t size;
-	size_t count;
-	int (*heap_condition)(void *a, void *b);
-	void **data;
-};
+typedef struct _binaryheap binaryheap;
 
-struct binaryheap binaryheap(void **data, size_t size, size_t count, int (*heap_condition)(void *a, void *b));
-size_t binaryheap_left(size_t i);
-size_t binaryheap_right(size_t i);
-size_t binaryheap_parent(size_t i);
-int binaryheap_insert(struct binaryheap *heap, void *item);
-void *binaryheap_delete(struct binaryheap *heap);
-void binaryheap_heapify(struct binaryheap *heap);
+binaryheap *
+binaryheap_create(void **data, size_t size, size_t count, int (*heap_condition)(void *a, void *b));
+
+void
+binaryheap_destroy(binaryheap *heap);
+
+int
+binaryheap_insert(binaryheap *heap, void *item);
+
+void *
+binaryheap_delete(binaryheap *heap);
+
+void
+binaryheap_heapify(binaryheap *heap);
+
 #endif
