@@ -29,7 +29,7 @@ typedef struct _hashitem hashitem;
 struct _hashitem
 {
 	hashitem *next;
-	char *key;
+	const char *key;
 	void *data;
 };
 
@@ -42,9 +42,12 @@ void
 hash_destroy(hash *hash);
 
 int
-hash_insert(hash *hash, char *key, void *item);
+hash_insert(hash *hash, const char *key, void *item);
 
 void *
 hash_search(hash *hash, const char* key);
+
+void
+hash_delete(hash *hash, const char *key);
 
 #endif

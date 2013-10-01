@@ -75,72 +75,112 @@ hash_defaulthf(const char *key, size_t initial)
 	return h;
 }
 
-int
-hash_insert(hash *hash, char *key, void *item)
+enum hash_traverse_result
+{
+	AVAILABLE,
+	FOUND,
+	COLLISION,
+	FULL
+};
+
+static enum hash_traverse_result
+hash_traverse(hash *hash, const char *key, hashitem **target, hashitem **parent)
 {
 	hashitem *desired = &hash->data[hash_defaulthf(key, 0) % hash->size];
+	hashitem *pp = desired;
 	hashitem *p = desired;
-	size_t i;
 	int differs;
 
 	while(p->key != NULL && (differs = strcmp(p->key, key)) && p->next != NULL && p->next != desired)
 	{
+		pp = p;
 		p = p->next;
+	}
+
+	if(target)
+	{
+		*target = p;
+	}
+
+	if(parent)
+	{
+		*parent = pp;
 	}
 
 	if(p->key == NULL)
 	{
-		p->key = key;
-		p->data = item;
+		return AVAILABLE;
 	}
 	else if(!differs)
 	{
-		p->data = item;
+		return FOUND;
 	}
 	else if(p->next == NULL && hash->overflow->key == NULL)
 	{
-		hash->overflow->key = key;
-		hash->overflow->data = item;
-		p->next = hash->overflow;
+		return COLLISION;
 	}
 	else
 	{
-		return -1;
+		return FULL;
 	}
+}
 
-	for(i = 0; i < hash->size && hash->data[i].key; i++);
+int
+hash_insert(hash *hash, const char *key, void *item)
+{
+	hashitem *p;
+	size_t i;
 
-	if(i < hash->size)
+	switch(hash_traverse(hash, key, &p, NULL))
 	{
-		hash->overflow = &hash->data[i];
+	case AVAILABLE:
+		p->key = key;
+		p->data = item;
+		break;
+	case FOUND:
+		p->data = item;
+		break;
+	case COLLISION:
+		hash->overflow->key = key;
+		hash->overflow->data = item;
+		p->next = hash->overflow;
+		for(i = 0; i < hash->size && hash->data[i].key; i++);
+		if(i < hash->size)
+		{
+			hash->overflow = &hash->data[i];
+		}
+		break;
+	default:
+		return -1;
 	}
 
 	return 0;
 }
 
-/*
-TODO: factor out parts in common with insert
-*/
 void *
-hash_search(hash *hash, const char* key)
+hash_search(hash *hash, const char *key)
 {
-	hashitem *desired = &hash->data[hash_defaulthf(key, 0) % hash->size];
-	hashitem *p = desired;
-	int differs;
+	hashitem *p;
 
-	while(p->key != NULL && (differs = strcmp(p->key, key)) && p->next != NULL && p->next != desired)
-	{
-		p = p->next;
-	}
-
-	if(p->key != NULL && !differs)
+	if(hash_traverse(hash, key, &p, NULL) == FOUND)
 	{
 		return p->data;
 	}
-	else
-	{
-		return NULL;
-	}
 
-	return 0;
+	return NULL;
+}
+
+void
+hash_delete(hash *hash, const char *key)
+{
+	hashitem *p, *pp;
+
+	if(hash_traverse(hash, key, &p, &pp) == FOUND)
+	{
+		pp->next = p->next;
+		p->key = NULL;
+		p->data = NULL;
+		p->next = NULL;
+		hash->overflow = p;
+	}
 }
