@@ -35,11 +35,20 @@ struct _hash
 hash *
 hash_create(hashitem *data, size_t size)
 {
-	hash *hash = malloc(sizeof(*hash));
+	hash *hash;
+
+	if(data)
+	{
+		hash = malloc(sizeof(*hash));
+	}
+	else
+	{
+		hash = calloc(1, sizeof(*hash) + sizeof(*data) * size);
+	}
 
 	if(hash)
 	{
-		hash->data = data;
+		hash->data = data ? data : (hashitem *)(hash + 1);
 		hash->size = size;
 		hash->overflow = data;
 	}

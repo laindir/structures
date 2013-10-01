@@ -34,11 +34,20 @@ struct _binaryheap
 binaryheap *
 binaryheap_create(void **data, size_t size, size_t count, int (*heap_condition)(void *a, void *b))
 {
-	binaryheap *heap = malloc(sizeof(*heap));
+	binaryheap *heap;
+
+	if(data)
+	{
+		heap = malloc(sizeof(*heap));
+	}
+	else
+	{
+		heap = calloc(1, sizeof(*heap) + sizeof(*data) * size);
+	}
 
 	if(heap)
 	{
-		heap->data = data;
+		heap->data = data ? data : (void **)(heap + 1);
 		heap->size = size;
 		heap->count = count;
 		heap->heap_condition = heap_condition;

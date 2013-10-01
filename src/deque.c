@@ -34,14 +34,23 @@ struct _deque
 deque *
 deque_create(void **data, size_t size)
 {
-	deque *deque = malloc(sizeof(*deque));
+	deque *deque;
+
+	if(data)
+	{
+		deque = malloc(sizeof(*deque));
+	}
+	else
+	{
+		deque = calloc(1, sizeof(*deque) + sizeof(*data) * size);
+	}
 
 	if(deque)
 	{
 		deque->size = size;
 		deque->back = 0;
 		deque->front = 0;
-		deque->data = data;
+		deque->data = data ? data : (void **)(deque + 1);
 	}
 
 	return deque;
